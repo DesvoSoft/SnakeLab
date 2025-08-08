@@ -1,33 +1,30 @@
-/* SnakeLab - App bootstrap */
+/* SnakeLab - Single-file edition (no Open, Run in Editor, layout toggle) */
 (() => {
   // ===== State =====
   let editor = null;
   let pyodide = null;
-  let fsHandle = null; // FileSystemFileHandle
-  const STORAGE_KEY = "snakelab.current";
-  const FILES = new Map(); // virtual project files (name -> content)
-  let activeFile = null;
+
+  // Local storage keys
+  const LS_CODE = "snakelab.code";
+  const LS_NAME = "snakelab.filename";
+  const LS_LAYOUT = "snakelab.layout"; // 'row' or 'col'
 
   // ===== DOM =====
   const FILENAME_INPUT = document.getElementById("filename-input");
-  const STATUS_FILENAME = document.getElementById("status-filename");
   const STATUS_POS = document.getElementById("status-pos");
   const PYODIDE_STATUS = document.getElementById("pyodide-status");
   const OUTPUT = document.getElementById("output");
-  const FILE_LIST = document.getElementById("file-list");
-  const HIDDEN_INPUT = document.getElementById("hidden-file-input");
+  const WORKBENCH = document.getElementById("workbench");
 
-  // Actions
   const runBtn = document.getElementById("run-btn");
   const newBtn = document.getElementById("new-btn");
-  const openBtn = document.getElementById("open-btn");
-  const saveBtn = document.getElementById("save-btn");
+  const downloadBtn = document.getElementById("download-btn");
   const formatBtn = document.getElementById("format-btn");
   const copyOutputBtn = document.getElementById("copy-output-btn");
   const clearOutputBtn = document.getElementById("clear-output-btn");
-  const sidebarNewBtn = document.getElementById("sidebar-new");
   const themeSelect = document.getElementById("theme-select");
   const fontSizeSelect = document.getElementById("fontsize-select");
+  const layoutToggleBtn = document.getElementById("layout-toggle");
 
   // ===== Monaco load (AMD) =====
   require.config({
@@ -38,6 +35,7 @@
 
   require(["vs/editor/editor.main"], async function () {
     defineSnakeTheme();
+
     editor = monaco.editor.create(document.getElementById("editor"), {
       value: getInitialCode(),
       language: "python",
@@ -48,23 +46,23 @@
       scrollBeyondLastLine: false,
     });
 
+    // filename init
+    setFilename(getInitialName());
+
     // Cursor status
     editor.onDidChangeCursorPosition((e) => {
       STATUS_POS.textContent = `Ln ${e.position.lineNumber}, Col ${e.position.column}`;
     });
 
-    // Autosave current buffer
+    // Auto-save
     editor.onDidChangeModelContent(
       debounce(() => {
-        localStorage.setItem(STORAGE_KEY, editor.getValue());
-        // sync to virtual file if any
-        if (activeFile) FILES.set(activeFile, editor.getValue());
-      }, 300)
+        localStorage.setItem(LS_CODE, editor.getValue());
+      }, 250)
     );
 
-    // Init virtual files
-    seedVirtualFiles();
-    renderFileList();
+    // Init layout
+    applyLayout(getInitialLayout());
 
     // Load Pyodide
     try {
@@ -75,104 +73,14 @@
       appendOutput(`❌ Pyodide load error: ${err}`, "err");
       console.error(err);
     }
-  });
 
-  // ====== Files (virtual) ======
-  function seedVirtualFiles() {
-    FILES.set(
-      "example.py",
-      `# Example: Fibonacci
-def fib(n):
-    a, b = 0, 1
-    out = []
-    for _ in range(n):
-        out.append(a)
-        a, b = b, a + b
-    return out
-
-print("Fib(10):", fib(10))
-`
-    );
-    // Start with either saved buffer or a main.py
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const initialName = "main.py";
-    FILES.set(initialName, saved && saved.trim().length ? saved : defaultMain());
-    setActiveFile(initialName);
-  }
-
-  function defaultMain() {
-    return `# SnakeLab starter
-print("Hello, SnakeLab!")
-for i in range(3):
-    print("Tick", i)`;
-  }
-
-  function setActiveFile(name) {
-    activeFile = name;
-    const content = FILES.get(name) ?? "";
-    if (editor) editor.setValue(content);
-    setFilename(name);
-    highlightActiveFile();
-  }
-
-  function renderFileList(filter = "") {
-    FILE_LIST.innerHTML = "";
-    const items = [...FILES.keys()].filter((n) =>
-      n.toLowerCase().includes(filter.toLowerCase())
-    );
-    for (const name of items) {
-      const row = document.createElement("div");
-      row.className = "sl-file";
-      if (name === activeFile) row.classList.add("sl-file--active");
-      row.dataset.name = name;
-
-      const left = document.createElement("span");
-      left.className = "sl-file__name";
-      left.textContent = name;
-
-      const right = document.createElement("span");
-      right.className = "sl-file__meta";
-      right.textContent = name === "example.py" ? "sample" : "local";
-
-      row.appendChild(left);
-      row.appendChild(right);
-      FILE_LIST.appendChild(row);
-    }
-  }
-
-  function highlightActiveFile() {
-    const nodes = FILE_LIST.querySelectorAll(".sl-file");
-    nodes.forEach((n) => {
-      if (n.dataset.name === activeFile) n.classList.add("sl-file--active");
-      else n.classList.remove("sl-file--active");
+    // Keyboard shortcut: Run (Ctrl/Cmd+Enter)
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      runBtn.click();
     });
-  }
-
-  function uniqueUntitled() {
-    const base = "untitled";
-    let i = 1;
-    while (FILES.has(`${base}${i}.py`)) i++;
-    return `${base}${i}.py`;
-  }
-
-  // Sidebar clicks
-  FILE_LIST.addEventListener("click", (e) => {
-    const item = e.target.closest(".sl-file");
-    if (!item) return;
-    const name = item.dataset.name;
-    if (!name) return;
-    fsHandle = null; // switching to virtual file
-    setActiveFile(name);
   });
 
-  // Search filter
-  document.getElementById("search-input").addEventListener("input", (e) => {
-    renderFileList(e.target.value || "");
-  });
-
-  // ===== UI Handlers =====
-
-  // Run
+  // ===== Actions =====
   runBtn.addEventListener("click", async () => {
     if (!pyodide || !editor) return;
     const code = editor.getValue();
@@ -195,7 +103,6 @@ mystdout.getvalue()
     }
   });
 
-  // Copy / Clear output
   copyOutputBtn.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(OUTPUT.textContent);
@@ -204,125 +111,36 @@ mystdout.getvalue()
       toast("Copy failed");
     }
   });
+
   clearOutputBtn.addEventListener("click", () => {
     OUTPUT.textContent = "";
   });
 
-  // New (header + sidebar)
-  function handleNew() {
-    fsHandle = null;
-    const name = uniqueUntitled();
-    FILES.set(name, `# ${name}\nprint("Hello from SnakeLab!")\n`);
-    renderFileList();
-    setActiveFile(name);
-  }
-  newBtn.addEventListener("click", handleNew);
-  sidebarNewBtn.addEventListener("click", handleNew);
+  // New -> confirm before clearing current buffer
+  newBtn.addEventListener("click", () => {
+    const ok = window.confirm(
+      "This will clear the current code buffer. Are you sure?"
+    );
+    if (!ok) return;
 
-  // Open (FS Access if available; fallback to <input>)
-  openBtn.addEventListener("click", async () => {
-    if (window.showOpenFilePicker) {
-      try {
-        const [handle] = await window.showOpenFilePicker({
-          types: [
-            { description: "Code/Text", accept: { "text/plain": [".py", ".txt", ".md", ".csv"] } },
-          ],
-          excludeAcceptAllOption: false,
-          multiple: false,
-        });
-        fsHandle = handle;
-        const file = await handle.getFile();
-        const text = await file.text();
-        // add/update into virtual list
-        const name = file.name || "opened.py";
-        FILES.set(name, text);
-        renderFileList();
-        setActiveFile(name);
-      } catch (e) {
-        // user cancelled
-      }
-    } else {
-      HIDDEN_INPUT.click();
-    }
+    const next = uniqueUntitled();
+    setFilename(next);
+    const tpl = `# ${next}
+print("Hello from SnakeLab!")`;
+    editor?.setValue(tpl);
+    localStorage.setItem(LS_CODE, tpl);
   });
 
-  HIDDEN_INPUT.addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    const name = file.name || "opened.py";
-    FILES.set(name, text);
-    renderFileList();
-    setActiveFile(name);
-    fsHandle = null;
-    HIDDEN_INPUT.value = "";
-  });
-
-  // Save (FS Access if available and handle; else Save As; else download)
-  saveBtn.addEventListener("click", async () => {
+  // Download .py (single-file)
+  downloadBtn.addEventListener("click", () => {
     const text = editor?.getValue() ?? "";
-    const suggestedName = FILENAME_INPUT.value || activeFile || "main.py";
-    // sync virtual file
-    if (activeFile) FILES.set(activeFile, text);
-
-    if (fsHandle && window.isSecureContext) {
-      try {
-        const writable = await fsHandle.createWritable();
-        await writable.write(text);
-        await writable.close();
-        toast("Saved");
-        return;
-      } catch (e) {
-        appendOutput(`⚠️ Save failed: ${e}`, "err");
-      }
-    }
-
-    // Save As if possible
-    if (window.showSaveFilePicker && window.isSecureContext) {
-      try {
-        fsHandle = await window.showSaveFilePicker({
-          suggestedName,
-          types: [{ description: "Python", accept: { "text/x-python": [".py"] } }],
-        });
-        const writable = await fsHandle.createWritable();
-        await writable.write(text);
-        await writable.close();
-        const savedFile = await fsHandle.getFile();
-        const finalName = savedFile.name || suggestedName;
-        // keep virtual list aligned with saved name
-        if (activeFile && activeFile !== finalName) {
-          FILES.delete(activeFile);
-        }
-        FILES.set(finalName, text);
-        renderFileList();
-        setActiveFile(finalName);
-        toast("Saved");
-        return;
-      } catch (e) {
-        // user cancelled; do nothing
-      }
-    }
-
-    // Fallback: download via Blob
-    downloadText(text, suggestedName.endsWith(".py") ? suggestedName : suggestedName + ".py");
+    const name = (FILENAME_INPUT.value || "main.py").trim();
+    downloadText(text, name.endsWith(".py") ? name : name + ".py");
   });
 
-  // Filename input -> status + file rename in virtual list
+  // Filename change (just update LS name)
   FILENAME_INPUT.addEventListener("change", () => {
     const newName = (FILENAME_INPUT.value || "main.py").trim();
-    if (!activeFile || newName === activeFile) {
-      setFilename(newName);
-      return;
-    }
-    // rename virtual file if name unused
-    if (!FILES.has(newName)) {
-      const content = FILES.get(activeFile) ?? editor.getValue();
-      FILES.delete(activeFile);
-      FILES.set(newName, content);
-      activeFile = newName;
-      renderFileList();
-      highlightActiveFile();
-    }
     setFilename(newName);
   });
 
@@ -335,7 +153,7 @@ mystdout.getvalue()
     editor?.updateOptions({ fontSize: size });
   });
 
-  // Format (basic) — keep selection & cursor best-effort
+  // Basic Format (later: Worker + Black)
   formatBtn.addEventListener("click", () => {
     if (!editor) return;
     const model = editor.getModel();
@@ -354,7 +172,6 @@ mystdout.getvalue()
     ]);
     editor.pushUndoStop();
 
-    // Restore selection position best-effort
     if (prevSel) {
       const lines = model.getLineCount();
       const newStartLine = Math.min(prevSel.startLineNumber, lines);
@@ -373,6 +190,22 @@ mystdout.getvalue()
       });
     }
     toast("Formatted");
+  });
+
+  // Layout toggle (Right <-> Bottom) — only visible on landscape (CSS)
+  layoutToggleBtn.addEventListener("click", () => {
+    const isRow = WORKBENCH.classList.contains("sl-workbench--row");
+    if (isRow) {
+      WORKBENCH.classList.remove("sl-workbench--row");
+      WORKBENCH.classList.add("sl-workbench--col");
+      layoutToggleBtn.textContent = "Output: Bottom";
+      localStorage.setItem(LS_LAYOUT, "col");
+    } else {
+      WORKBENCH.classList.remove("sl-workbench--col");
+      WORKBENCH.classList.add("sl-workbench--row");
+      layoutToggleBtn.textContent = "Output: Right";
+      localStorage.setItem(LS_LAYOUT, "row");
+    }
   });
 
   // ===== Helpers =====
@@ -404,9 +237,44 @@ mystdout.getvalue()
   }
 
   function getInitialCode() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(LS_CODE);
     if (saved && saved.trim().length > 0) return saved;
-    return defaultMain();
+    return `# SnakeLab starter
+print("Hello, SnakeLab!")
+for i in range(3):
+    print("Tick", i)`;
+  }
+
+  function getInitialName() {
+    const saved = localStorage.getItem(LS_NAME);
+    return saved && saved.trim().length ? saved : "main.py";
+  }
+
+  function setFilename(name) {
+    document.getElementById("filename-input").value = name;
+    localStorage.setItem(LS_NAME, name);
+  }
+
+  function getInitialLayout() {
+    const saved = localStorage.getItem(LS_LAYOUT);
+    return saved === "col" ? "col" : "row";
+  }
+
+  function applyLayout(mode) {
+    if (mode === "col") {
+      WORKBENCH.classList.remove("sl-workbench--row");
+      WORKBENCH.classList.add("sl-workbench--col");
+      layoutToggleBtn.textContent = "Output: Bottom";
+    } else {
+      WORKBENCH.classList.remove("sl-workbench--col");
+      WORKBENCH.classList.add("sl-workbench--row");
+      layoutToggleBtn.textContent = "Output: Right";
+    }
+  }
+
+  function uniqueUntitled() {
+    const stamp = Date.now().toString().slice(-5);
+    return `untitled_${stamp}.py`;
   }
 
   function indent(code, level = 1) {
@@ -422,8 +290,7 @@ mystdout.getvalue()
   }
 
   function basicFormatPython(src) {
-    // Very basic: convert tabs to 4 spaces, trim trailing spaces, collapse >2 blank lines
-    // and ensure file ends with a newline.
+    // basic: tabs->spaces, trim trailing, collapse >2 blank lines, end with newline
     const out = src
       .replace(/\t/g, "    ")
       .split("\n")
@@ -433,11 +300,11 @@ mystdout.getvalue()
     return out.endsWith("\n") ? out : out + "\n";
   }
 
-  function appendOutput(text, cls) {
+  function appendOutput(text) {
     OUTPUT.textContent += (OUTPUT.textContent ? "\n" : "") + text;
   }
 
-  function downloadText(text, filename = "file.txt") {
+  function downloadText(text, filename = "file.py") {
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -447,11 +314,6 @@ mystdout.getvalue()
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }
-
-  function setFilename(name) {
-    FILENAME_INPUT.value = name;
-    STATUS_FILENAME.textContent = name;
   }
 
   function debounce(fn, ms = 250) {

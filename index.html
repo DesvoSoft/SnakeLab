@@ -25,31 +25,14 @@
         <div class="sl-title">SnakeLab</div>
       </div>
       <div class="sl-actions">
-        <button id="run-btn" class="sl-btn sl-btn--primary">Run</button>
-        <!-- Clear moved to Output panel -->
+        <!-- Run moved into the Editor panel -->
         <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
-        <button id="open-btn" class="sl-btn sl-btn--blue">Open</button>
-        <button id="save-btn" class="sl-btn sl-btn--blue">Save</button>
+        <button id="download-btn" class="sl-btn">Download .py</button>
       </div>
     </div>
   </header>
 
-  <main class="sl-app">
-    <!-- Sidebar -->
-    <aside class="sl-sidebar">
-      <div class="sl-side-header">
-        <div class="sl-side-title">Files</div>
-        <button id="sidebar-new" class="sl-btn sl-btn--blue sl-btn--sm">New</button>
-      </div>
-      <div class="sl-search">
-        <input id="search-input" placeholder="Search file..." />
-      </div>
-      <div class="sl-file-list" id="file-list">
-        <!-- Populated by JS -->
-      </div>
-    </aside>
-
-    <!-- Main -->
+  <main class="sl-app sl-app--single">
     <section class="sl-main">
       <!-- Toolbar -->
       <div class="sl-toolbar">
@@ -57,6 +40,7 @@
           <label for="filename-input">File:</label>
           <input id="filename-input" value="main.py" />
         </div>
+
         <div class="sl-field">
           <label for="theme-select">Theme:</label>
           <select id="theme-select">
@@ -65,6 +49,7 @@
             <option value="vs-light">VS Light</option>
           </select>
         </div>
+
         <div class="sl-field">
           <label for="fontsize-select">Font size:</label>
           <select id="fontsize-select">
@@ -73,16 +58,24 @@
             <option>18</option>
           </select>
         </div>
+
         <button id="format-btn" class="sl-btn sl-btn--blue">Format</button>
-        <input id="hidden-file-input" type="file" accept=".py,.txt,.md,.csv" style="display:none" />
+
+        <!-- Layout toggle (only visible on landscape via CSS) -->
+        <button id="layout-toggle" class="sl-btn sl-btn--blue" title="Output position: Right/Bottom">
+          Output: Right
+        </button>
       </div>
 
       <!-- Workbench -->
-      <div class="sl-workbench">
+      <div id="workbench" class="sl-workbench sl-workbench--single sl-workbench--row">
         <!-- Editor -->
         <div class="sl-panel">
           <div class="sl-panel__header">
             <div class="sl-panel__title">Editor</div>
+            <div class="sl-panel__actions">
+              <button id="run-btn" class="sl-btn sl-btn--blue sl-btn--sm" title="Run (Ctrl+Enter)">Run</button>
+            </div>
           </div>
           <div class="sl-panel__body">
             <div id="editor" class="sl-editor"></div>
@@ -108,11 +101,10 @@
       <div class="sl-statusbar">
         <div class="sl-status-left">
           <span class="sl-pill sl-pill--blue"><span class="sl-dot"></span><span id="pyodide-status">Pyodide: loading…</span></span>
-          <span class="sl-pill">File: <b id="status-filename">main.py</b></span>
           <span class="sl-pill" id="status-pos">Ln 1, Col 1</span>
         </div>
         <div class="sl-status-right">
-          <span>SnakeLab v0.2 • Gradient Blue</span>
+          <span>SnakeLab v0.4 • Single-file</span>
         </div>
       </div>
     </section>
