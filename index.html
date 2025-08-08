@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>SnakeLab</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./styles/style.css" />
+
+  <!-- Pyodide (Python in the browser) -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+  <!-- Monaco AMD Loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <header class="sl-header">
+    <div class="sl-topbar">
+      <div class="sl-brand">
+        <div class="sl-logo" aria-hidden="true"></div>
+        <div class="sl-title">SnakeLab</div>
+      </div>
+      <div class="sl-actions">
+        <button id="run-btn" class="sl-btn sl-btn--primary">Run</button>
+        <!-- Clear moved to Output panel -->
+        <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
+        <button id="open-btn" class="sl-btn sl-btn--blue">Open</button>
+        <button id="save-btn" class="sl-btn sl-btn--blue">Save</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="sl-app">
+    <!-- Sidebar -->
+    <aside class="sl-sidebar">
+      <div class="sl-side-header">
+        <div class="sl-side-title">Files</div>
+        <button id="sidebar-new" class="sl-btn sl-btn--blue sl-btn--sm">New</button>
+      </div>
+      <div class="sl-search">
+        <input id="search-input" placeholder="Search file..." />
+      </div>
+      <div class="sl-file-list" id="file-list">
+        <!-- Populated by JS -->
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <section class="sl-main">
+      <!-- Toolbar -->
+      <div class="sl-toolbar">
+        <div class="sl-field">
+          <label for="filename-input">File:</label>
+          <input id="filename-input" value="main.py" />
+        </div>
+        <div class="sl-field">
+          <label for="theme-select">Theme:</label>
+          <select id="theme-select">
+            <option value="snake-dark">Snake Dark</option>
+            <option value="vs-dark">VS Dark</option>
+            <option value="vs-light">VS Light</option>
+          </select>
+        </div>
+        <div class="sl-field">
+          <label for="fontsize-select">Font size:</label>
+          <select id="fontsize-select">
+            <option>14</option>
+            <option>16</option>
+            <option>18</option>
+          </select>
+        </div>
+        <button id="format-btn" class="sl-btn sl-btn--blue">Format</button>
+        <input id="hidden-file-input" type="file" accept=".py,.txt,.md,.csv" style="display:none" />
+      </div>
+
+      <!-- Workbench -->
+      <div class="sl-workbench">
+        <!-- Editor -->
+        <div class="sl-panel">
+          <div class="sl-panel__header">
+            <div class="sl-panel__title">Editor</div>
+          </div>
+          <div class="sl-panel__body">
+            <div id="editor" class="sl-editor"></div>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div class="sl-panel">
+          <div class="sl-panel__header">
+            <div class="sl-panel__title">Output</div>
+            <div class="sl-panel__actions">
+              <button id="copy-output-btn" class="sl-btn sl-btn--blue sl-btn--sm">Copy</button>
+              <button id="clear-output-btn" class="sl-btn sl-btn--sm">Clear</button>
+            </div>
+          </div>
+          <div class="sl-panel__body">
+            <pre id="output" class="sl-output">⏳ Ready to run…</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="sl-statusbar">
+        <div class="sl-status-left">
+          <span class="sl-pill sl-pill--blue"><span class="sl-dot"></span><span id="pyodide-status">Pyodide: loading…</span></span>
+          <span class="sl-pill">File: <b id="status-filename">main.py</b></span>
+          <span class="sl-pill" id="status-pos">Ln 1, Col 1</span>
+        </div>
+        <div class="sl-status-right">
+          <span>SnakeLab v0.2 • Gradient Blue</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- App JS -->
+  <script src="./scripts/app.js"></script>
+</body>
+</html>
