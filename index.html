@@ -11,13 +11,24 @@
   <!-- Styles -->
   <link rel="stylesheet" href="./styles/style.css" />
 
-  <!-- Pyodide (Python in the browser) -->
+  <!-- Pyodide -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 
   <!-- Monaco AMD Loader -->
   <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
 </head>
 <body>
+  <!-- Fullscreen boot screen -->
+  <div id="boot-screen" class="sl-boot" aria-live="polite">
+    <div class="sl-boot__content">
+      <div class="sl-boot__logo" aria-hidden="true"></div>
+      <h1 class="sl-boot__title">SnakeLab</h1>
+      <p class="sl-boot__msg">Loading Python runtime…</p>
+      <div class="sl-boot__spinner" role="progressbar" aria-valuetext="Loading"></div>
+      <p class="sl-boot__tip">Runs entirely in your browser — no backend.</p>
+    </div>
+  </div>
+
   <header class="sl-header">
     <div class="sl-topbar">
       <div class="sl-brand">
@@ -25,14 +36,13 @@
         <div class="sl-title">SnakeLab</div>
       </div>
       <div class="sl-actions">
-        <!-- Run moved into the Editor panel -->
         <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
         <button id="download-btn" class="sl-btn">Download .py</button>
       </div>
     </div>
   </header>
 
-  <main class="sl-app sl-app--single">
+  <main class="sl-app sl-app--single" aria-hidden="true">
     <section class="sl-main">
       <!-- Toolbar -->
       <div class="sl-toolbar">
@@ -41,25 +51,37 @@
           <input id="filename-input" value="main.py" />
         </div>
 
-        <div class="sl-field">
-          <label for="theme-select">Theme:</label>
-          <select id="theme-select">
-            <option value="snake-dark">Snake Dark</option>
-            <option value="vs-dark">VS Dark</option>
-            <option value="vs-light">VS Light</option>
-          </select>
+        <!-- Theme dropdown (custom) -->
+        <div class="sl-field sl-field--dropdown" data-select="theme">
+          <label>Theme:</label>
+          <div class="sl-select" id="theme-select" aria-expanded="false">
+            <button class="sl-select__button" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="sl-select__label">Snake Dark</span>
+              <span class="sl-caret" aria-hidden="true"></span>
+            </button>
+            <ul class="sl-select__menu" role="listbox" tabindex="-1">
+              <li class="sl-select__option is-active" role="option" data-value="snake-dark" tabindex="0">Snake Dark</li>
+              <li class="sl-select__option" role="option" data-value="vs-dark" tabindex="0">VS Dark</li>
+              <li class="sl-select__option" role="option" data-value="vs-light" tabindex="0">VS Light</li>
+            </ul>
+          </div>
         </div>
 
-        <div class="sl-field">
-          <label for="fontsize-select">Font size:</label>
-          <select id="fontsize-select">
-            <option>14</option>
-            <option>16</option>
-            <option>18</option>
-          </select>
+        <!-- Font size dropdown (custom) -->
+        <div class="sl-field sl-field--dropdown" data-select="fontsize">
+          <label>Font size:</label>
+          <div class="sl-select" id="fontsize-select" aria-expanded="false">
+            <button class="sl-select__button" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="sl-select__label">14</span>
+              <span class="sl-caret" aria-hidden="true"></span>
+            </button>
+            <ul class="sl-select__menu" role="listbox" tabindex="-1">
+              <li class="sl-select__option is-active" role="option" data-value="14" tabindex="0">14</li>
+              <li class="sl-select__option" role="option" data-value="16" tabindex="0">16</li>
+              <li class="sl-select__option" role="option" data-value="18" tabindex="0">18</li>
+            </ul>
+          </div>
         </div>
-
-        <button id="format-btn" class="sl-btn sl-btn--blue">Format</button>
 
         <!-- Layout toggle (only visible on landscape via CSS) -->
         <button id="layout-toggle" class="sl-btn sl-btn--blue" title="Output position: Right/Bottom">
@@ -100,11 +122,14 @@
       <!-- Status Bar -->
       <div class="sl-statusbar">
         <div class="sl-status-left">
-          <span class="sl-pill sl-pill--blue"><span class="sl-dot"></span><span id="pyodide-status">Pyodide: loading…</span></span>
+          <span class="sl-pill sl-pill--ok">
+            <span class="sl-dot sl-dot--ok" aria-hidden="true"></span>
+            <span>Pyodide: ready</span>
+          </span>
           <span class="sl-pill" id="status-pos">Ln 1, Col 1</span>
         </div>
         <div class="sl-status-right">
-          <span>SnakeLab v0.4 • Single-file</span>
+          <span>SnakeLab v0.5 • Single-file</span>
         </div>
       </div>
     </section>

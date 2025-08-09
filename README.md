@@ -5,9 +5,9 @@
 A lightweight **in-browser Python IDE** powered by **Pyodide** + **Monaco Editor**.  
 No backend. Runs entirely in your browser.
 
-<!-- **Live demo:**  -->
+**Live demo:** https://desvosoft.github.io/SnakeLab/
 
-![SnakeLab UI](./assets/snakelab-cover.png)
+<!-- ![SnakeLab UI](./assets/snakelab-cover.png) -->
 
 ## Features
 <!-- - ✨ Modern UI -->
