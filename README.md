@@ -1,5 +1,7 @@
 # 🐍 SnakeLab
 
+![SnakeLab Logo](./assets/SnakeLab-logo.png)
+
 **SnakeLab** is a lightweight, futuristic-themed **Python playground** that runs entirely in your browser — no server, no installs, no sign-up.  
 Powered by [Pyodide](https://pyodide.org/) for Python execution and [Monaco Editor](https://microsoft.github.io/monaco-editor/) for a rich editing experience.
 

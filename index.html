@@ -22,7 +22,9 @@
   <!-- Fullscreen boot screen -->
   <div id="boot-screen" class="sl-boot" aria-live="polite">
     <div class="sl-boot__content">
-      <div class="sl-boot__logo" aria-hidden="true"></div>
+      <div class="sl-boot__logo" aria-hidden="true">
+        <img src="./assets/SnakeLab-logo.png" alt="SnakeLab Logo">
+      </div>
       <h1 class="sl-boot__title">SnakeLab</h1>
       <p class="sl-boot__msg">Loading Python runtime…</p>
       <div class="sl-boot__spinner" role="progressbar" aria-valuetext="Loading"></div>
@@ -33,12 +35,17 @@
   <header class="sl-header">
     <div class="sl-topbar">
       <div class="sl-brand">
-        <div class="sl-logo" aria-hidden="true"></div>
+        <div class="sl-logo">
+          <img src="./assets/SnakeLab-logo.png" alt="SnakeLab Logo">
+        </div>
         <div class="sl-title">SnakeLab</div>
       </div>
       <div class="sl-actions">
         <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
-        <button id="download-btn" class="sl-btn">Download .py</button>
+        <button id="download-btn" class="sl-btn sl-btn--blue">Download .py</button>
+
+         <!-- Toolbar toggle -->
+         <button id="nav-toolbar-toggle" class="sl-btn sl-btn--blue" aria-expanded="false" title="Toggle toolbar">☰</button>
       </div>
     </div>
   </header>
@@ -97,7 +104,7 @@
           <div class="sl-panel__header">
             <div class="sl-panel__title">Editor</div>
             <div class="sl-panel__actions">
-              <button id="run-btn" class="sl-btn sl-btn--blue sl-btn--sm" title="Run (Ctrl+Enter)">Run</button>
+              <button id="run-btn" class="sl-btn sl-btn--sm" title="Run (Ctrl+Enter)">Run</button>
             </div>
           </div>
           <div class="sl-panel__body">
@@ -111,11 +118,11 @@
             <div class="sl-panel__title">Output</div>
             <div class="sl-panel__actions">
               <button id="copy-output-btn" class="sl-btn sl-btn--blue sl-btn--sm">Copy</button>
-              <button id="clear-output-btn" class="sl-btn sl-btn--sm">Clear</button>
+              <button id="clear-output-btn" class="sl-btn sl-btn--sm sl-btn--blue">Clear</button>
             </div>
           </div>
           <div class="sl-panel__body">
-            <pre id="output" class="sl-output">⏳ Ready to run…</pre>
+            <pre id="output" class="sl-output">Ready to run…</pre>
           </div>
         </div>
       </div>
@@ -123,7 +130,7 @@
       <!-- Status Bar -->
       <div class="sl-statusbar">
         <div class="sl-status-left">
-          <span class="sl-pill sl-pill--ok">
+          <span class="sl-pill">
             <span class="sl-dot sl-dot--ok" aria-hidden="true"></span>
             <span>Pyodide</span>
           </span>

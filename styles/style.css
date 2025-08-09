@@ -1,44 +1,38 @@
+/* =========================================================
+   SnakeLab — Stylesheet (responsive toolbar + full-height panels)
+   ========================================================= */
+
+/* ---------- Tokens ---------- */
 :root{
-  /* Background gradient */
   --bg-grad: linear-gradient(135deg, #08151a 0%, #0b0f1d 40%, #0f1226 100%);
 
-  /* Panels & text */
   --panel:#10151c;
   --panel2:#0f141b;
   --text:#e6f7ff;
   --text2:#bfe9ff;
   --muted:#88a9be;
 
-  /* Accents */
   --teal:#14ffb9;
-  --teal-2:#05c78c;
   --blue:#42a5ff;
-  --blue-2:#1e7ee6;
-  --violet:#5e5aff;
 
-  /* States */
   --danger:#ff3860;
 
-  /* Decor */
   --bd-soft: rgba(66,165,255,0.3);
   --bd-teal: rgba(20,255,185,0.35);
   --shadow-blue: 0 0 22px rgba(94,90,255,0.15);
-  --shadow-teal: 0 0 22px rgba(66,165,255,0.15);
 
-  /* Radii & gaps */
   --r-lg:14px;
   --r:10px;
-  --r-sm:8px;
   --gap-lg:16px;
   --gap:12px;
-  --gap-sm:8px;
 
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+/* ---------- Base ---------- */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 body{
   margin:0;
   background: var(--bg-grad);
@@ -48,7 +42,9 @@ body{
   flex-direction:column;
 }
 
-/* ===== Boot screen (fullscreen overlay) ===== */
+/* =========================================================
+   Boot Screen (fullscreen overlay)
+   ========================================================= */
 .sl-boot{
   position:fixed; inset:0;
   background:
@@ -59,26 +55,23 @@ body{
   z-index:9999;
 }
 .sl-boot__content{
-  text-align:center;
-  padding:24px;
-  border-radius:16px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:24px; border-radius:16px;
 }
-.sl-boot__logo{
-  width:64px; height:64px; border-radius:16px;
-  margin:0 auto 12px;
-  background:
-    radial-gradient(120% 120% at 30% 30%, var(--teal) 0%, var(--teal-2) 45%, #0a0f0d 80%),
-    radial-gradient(110% 110% at 70% 70%, var(--blue) 0%, #0a0f0d 70%);
-  box-shadow: 0 0 18px #14ffb988, 0 0 18px #42a5ff88;
+.sl-boot__logo{ width:80px; height:80px; margin:0 0 12px; }
+.sl-boot__logo img{
+  display:block; width:100%; height:100%; object-fit:contain;
+  filter:
+    drop-shadow(0 0 6px rgba(20,255,185,0.35))
+    drop-shadow(0 0 10px rgba(66,165,255,0.35));
 }
 .sl-boot__title{
   margin:0 0 8px; font-size:1.8rem; font-weight:800; letter-spacing:.6px;
   color:var(--teal);
-  text-shadow: 0 0 8px var(--teal), 0 0 16px var(--violet);
+  text-shadow: 0 0 8px var(--teal), 0 0 16px rgba(94,90,255,.6);
 }
 .sl-boot__msg{ margin:0 0 12px; color:var(--text2); }
 .sl-boot__tip{ margin-top:10px; color:var(--muted); font-size:.9rem; }
-
 .sl-boot__spinner{
   width:48px; height:48px; margin:0 auto;
   border-radius:50%;
@@ -88,42 +81,49 @@ body{
 }
 @keyframes slspin { to { transform: rotate(360deg); } }
 
-/* ===== Header ===== */
+/* =========================================================
+   Header / Topbar
+   ========================================================= */
 .sl-header{
   background: rgba(0,0,0,0.25);
   backdrop-filter: blur(4px);
   border-bottom:1px solid var(--bd-teal);
   padding:12px var(--gap-lg);
-  position:sticky;
-  top:0;
-  z-index:10;
+  position:sticky; top:0; z-index:10;
 }
 .sl-topbar{ display:flex; align-items:center; justify-content:space-between; gap:var(--gap); }
+
+/* Brand */
 .sl-brand{ display:flex; align-items:center; gap:12px; user-select:none; }
-.sl-logo{
-  width:28px; height:28px; border-radius:8px;
-  background:
-    radial-gradient(120% 120% at 30% 30%, var(--teal) 0%, var(--teal-2) 45%, #0a0f0d 80%),
-    radial-gradient(110% 110% at 70% 70%, var(--blue) 0%, #0a0f0d 70%);
-  box-shadow: 0 0 10px #14ffb9aa, 0 0 12px #42a5ffaa;
+.sl-logo{ width:28px; height:28px; }
+.sl-logo img{
+  display:block; width:100%; height:100%; object-fit:contain;
+  filter:
+    drop-shadow(0 0 6px rgba(20,255,185,0.35))
+    drop-shadow(0 0 10px rgba(66,165,255,0.35));
+}
+@media (hover:hover){
+  .sl-logo img:hover{
+    filter:
+      drop-shadow(0 0 8px rgba(20,255,185,0.55))
+      drop-shadow(0 0 14px rgba(66,165,255,0.45));
+  }
 }
 .sl-title{
   font-weight:800; letter-spacing:.6px;
   color:var(--teal);
-  text-shadow: 0 0 6px var(--teal), 0 0 12px var(--violet);
+  text-shadow: 0 0 6px var(--teal), 0 0 12px rgba(94,90,255,.6);
 }
 
-/* ===== Buttons ===== */
+/* Header buttons */
 .sl-btn{
   border:1px solid var(--teal);
   color:var(--teal);
   background:transparent;
   padding:8px 12px;
   border-radius:10px;
-  font-weight:600;
-  letter-spacing:.2px;
-  cursor:pointer;
-  transition:.2s ease;
+  font-weight:600; letter-spacing:.2px;
+  cursor:pointer; transition:.2s ease;
 }
 .sl-btn:hover{
   background:rgba(20,255,185,0.14);
@@ -136,12 +136,21 @@ body{
 }
 .sl-btn--sm{ padding:6px 10px; border-radius:8px; }
 
-/* ===== App layout ===== */
+/* =========================================================
+   App Layout
+   ========================================================= */
 .sl-app{ flex:1; display:flex; padding:var(--gap-lg); }
-.sl-app--single{ justify-content:center; }
-.sl-main{ flex:1; display:grid; grid-template-rows:auto 1fr auto; gap:var(--gap-lg); min-height:0; max-width:1400px; width:100%; }
+.sl-app--single{ flex:1; display:flex; justify-content:center; }
+.sl-main{
+  flex:1; display:grid;
+  grid-template-rows: auto 1fr auto; /* toolbar | workbench | statusbar */
+  gap:var(--gap-lg);
+  min-height:0; max-width:1400px; width:100%;
+}
 
-/* ===== Toolbar ===== */
+/* =========================================================
+   Toolbar (+ dropdowns)
+   ========================================================= */
 .sl-toolbar{
   background:var(--panel);
   border:1px solid var(--bd-soft);
@@ -161,24 +170,17 @@ body{
   color:var(--text); font-weight:600;
 }
 
-/* ===== Custom dropdown (dark) ===== */
+/* Custom dropdown (button + menu) */
 .sl-field--dropdown{ gap:6px; }
 .sl-select{ position:relative; min-width:170px; }
 .sl-select__button{
   width:100%;
-  display:flex; align-items:center; justify-content:space-between;
-  gap:10px;
-  background:#0f1822;
-  border:1px solid #14293e;
-  color:#e6f7ff;
-  padding:8px 12px;
-  border-radius:8px;
-  cursor:pointer;
-  transition:.15s ease;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:#0f1822; border:1px solid #14293e; color:#e6f7ff;
+  padding:8px 12px; border-radius:8px; cursor:pointer; transition:.15s ease;
 }
 .sl-select__button:hover{
-  border-color:#1e7ee6;
-  box-shadow:0 0 0 3px rgba(66,165,255,0.18);
+  border-color:#1e7ee6; box-shadow:0 0 0 3px rgba(66,165,255,0.18);
 }
 .sl-select__label{ pointer-events:none; }
 .sl-caret{
@@ -189,38 +191,22 @@ body{
 
 .sl-select__menu{
   position:absolute; top: calc(100% + 6px); left:0; right:0;
-  background:#0b141c;
-  border:1px solid #1b3c59;
-  border-radius:10px;
+  background:#0b141c; border:1px solid #1b3c59; border-radius:10px;
   box-shadow: 0 10px 24px rgba(0,0,0,.45), 0 0 22px rgba(66,165,255,.12);
-  max-height: 260px;
-  overflow:auto;
-  list-style:none;
-  padding:6px;
-  margin:0;
-  display:none;
-  z-index: 20;
+  max-height: 260px; overflow:auto;
+  list-style:none; padding:6px; margin:0;
+  display:none; z-index: 20;
 }
 .sl-select[aria-expanded="true"] .sl-select__menu{ display:block; }
-
 .sl-select__option{
   padding:8px 10px; border-radius:8px; color:#e6f7ff; cursor:pointer;
   border:1px solid transparent; outline:none;
 }
-.sl-select__option:hover{
-  background: rgba(66,165,255,0.12);
-  border-color:#1e7ee6;
-}
-.sl-select__option.is-active{
-  background: rgba(20,255,185,0.10);
-  border-color: rgba(20,255,185,0.35);
-}
+.sl-select__option:hover{ background: rgba(66,165,255,0.12); border-color:#1e7ee6; }
+.sl-select__option.is-active{ background: rgba(20,255,185,0.10); border-color: rgba(20,255,185,0.35); }
 
 /* Dropdown scrollbar */
-.sl-select__menu{
-  scrollbar-width: thin;
-  scrollbar-color: #1e7ee6 #0b141c;
-}
+.sl-select__menu{ scrollbar-width: thin; scrollbar-color: #1e7ee6 #0b141c; }
 .sl-select__menu::-webkit-scrollbar{ width:10px; }
 .sl-select__menu::-webkit-scrollbar-track{ background:#0b141c; border-left:1px solid #1b3c59; }
 .sl-select__menu::-webkit-scrollbar-thumb{
@@ -231,22 +217,32 @@ body{
   background: linear-gradient(180deg, #2c8ff0, #66b6ff);
 }
 
-/* ===== Workbench ===== */
+/* Toolbar responsive logic
+   - Mobile (≤720px): oculto por defecto; mostrar con body.ui-toolbar-open
+   - Desktop (≥721px): visible por defecto; colapsar con body.ui-toolbar-collapsed */
+@media (max-width: 720px){
+  .sl-toolbar{ display:none; }
+  body.ui-toolbar-open .sl-toolbar{ display:flex; }
+}
+@media (min-width: 721px){
+  .sl-toolbar{ display:flex; }
+  body.ui-toolbar-collapsed .sl-toolbar{ display:none; }
+}
+
+/* =========================================================
+   Workbench & Panels (fill all vertical space)
+   ========================================================= */
 .sl-workbench{ display:grid; gap:var(--gap-lg); min-height:0; }
 .sl-workbench--row{ grid-template-columns:1fr 1fr; grid-auto-rows:1fr; }
 .sl-workbench--col{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
 
-/* ===== Panels ===== */
 .sl-panel{
-  background:var(--panel);
-  border:1px solid var(--bd-soft);
-  border-radius:var(--r-lg);
-  box-shadow:var(--shadow-blue);
+  background:var(--panel); border:1px solid var(--bd-soft);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-blue);
   min-height:280px; display:flex; flex-direction:column; overflow:hidden;
 }
 .sl-panel__header{
-  padding:10px 12px;
-  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; display:flex; align-items:center; justify-content:space-between;
   background:
     linear-gradient(180deg,#0f1822,#0f182200),
     radial-gradient(120% 120% at 85% -20%, rgba(66,165,255,0.18) 0%, transparent 60%);
@@ -254,77 +250,123 @@ body{
 }
 .sl-panel__title{ color:var(--text2); font-weight:700; }
 .sl-panel__actions{ display:flex; gap:8px; }
-.sl-panel__body{ flex:1; min-height:0; padding:0; position:relative; }
-
-/* ===== Editor + Output ===== */
+.sl-panel__body{
+  flex:1; min-height:0; padding:0; position:relative; /* children fill */
+}
 .sl-editor{ position:absolute; inset:0; }
 .sl-output{
   position:absolute; inset:0;
-  background:#0f1822;
-  border-top:1px dashed #1b3c59;
-  padding:12px;
-  font-family:var(--mono);
-  color:#d8f6ff;
-  overflow:auto; line-height:1.5; margin:0;
-  white-space:pre-wrap;
+  background:#0f1822; border-top:1px dashed #1b3c59;
+  padding:12px; font-family:var(--mono); color:#d8f6ff;
+  overflow:auto; line-height:1.5; margin:0; white-space:pre-wrap;
 
-  /* Custom scrollbar (Output) */
-  scrollbar-width: thin;                      /* Firefox */
-  scrollbar-color: #1e7ee6 #0f1822;           /* thumb / track en Firefox */
+  scrollbar-width: thin; scrollbar-color: #1e7ee6 #0f1822;
 }
-.sl-output::-webkit-scrollbar{ width: 10px; height: 10px; }
-.sl-output::-webkit-scrollbar-track{
-  background:#0f1822;
-  border-left:1px solid #14293e;
-}
+.sl-output::-webkit-scrollbar{ width:10px; height:10px; }
+.sl-output::-webkit-scrollbar-track{ background:#0f1822; border-left:1px solid #14293e; }
 .sl-output::-webkit-scrollbar-thumb{
   background: linear-gradient(180deg, #1e7ee6, #42a5ff);
-  border-radius: 10px;
-  border: 2px solid #0f1822;
+  border-radius:10px; border:2px solid #0f1822;
 }
 .sl-output::-webkit-scrollbar-thumb:hover{
   background: linear-gradient(180deg, #2c8ff0, #66b6ff);
 }
-
 .sl-output .ok{ color:var(--teal); }
 .sl-output .err{ color:var(--danger); }
 .sl-output .hint{ color:var(--muted); }
 
-/* ===== Statusbar ===== */
+/* =========================================================
+   Status Bar
+   ========================================================= */
 .sl-statusbar{
-  background:var(--panel);
-  border:1px solid var(--bd-soft);
-  border-radius:var(--r-lg);
-  padding:8px 12px;
+  background:var(--panel); border:1px solid var(--bd-soft);
+  border-radius:var(--r-lg); padding:8px 12px;
   display:flex; align-items:center; justify-content:space-between;
-  gap:12px; color:var(--text2); font-size:.9rem;
-  box-shadow:var(--shadow-blue);
+  gap:12px; color:var(--text2); font-size:.9rem; box-shadow:var(--shadow-blue);
 }
 .sl-status-left, .sl-status-right{ display:flex; align-items:center; gap:14px; }
-.sl-pill{
-  border:1px solid #1b3c59;
-  background:#0f1822;
-  padding:4px 8px; border-radius:999px;
-}
-.sl-pill--ok{
-  border-color: #146b45;
-  background: #0f1f1a;
-  color: #d7ffe9;
-  box-shadow: inset 0 0 12px rgba(20,255,185,0.10);
-}
-.sl-dot{
-  width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px;
-}
+.sl-pill{ border:1px solid #1b3c59; background:#0f1822; padding:4px 8px; border-radius:999px; }
+.sl-pill--ok{ border-color:#146b45; background:#0f1f1a; color:#d7ffe9; box-shadow: inset 0 0 12px rgba(20,255,185,0.10); }
+.sl-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; }
 .sl-dot--ok{ background:#14ff6a; box-shadow:0 0 8px #14ff6a88; }
 
-/* Landscape-only control visibility */
+/* Ocultar statusbar & layout toggle en vertical */
 #layout-toggle{ display:inline-flex; }
 @media (orientation: portrait){
   #layout-toggle{ display:none; }
-  .sl-statusbar{ display:none; } /* Hide statusbar on portrait */
+  .sl-statusbar{ display:none; }
 }
 
-/* Responsive */
+/* Grid fallback para pantallas más estrechas */
 @media (max-width: 980px){
   .sl-workbench{ grid-template-columns:1fr !important; grid-template-rows:1fr 1fr; }
+}
+
+/* === Full-height plumbing (evita espacios muertos) === */
+.sl-app{ flex:1 1 auto; min-height:0; }
+.sl-app--single{ min-height:0; }
+.sl-main{ height:100%; min-height:0; }
+
+/* Cuando el toolbar está oculto, elimina su fila del grid para que no quede gap */
+.sl-main.no-toolbar{
+  /* solo 2 filas: workbench (1fr) + status (auto) */
+  grid-template-rows: 1fr auto;
+}
+
+/* Asegura que el workbench/panels SIEMPRE puedan crecer */
+.sl-workbench{ min-height:0; }
+.sl-panel{ min-height:0; }
+.sl-panel__body{ min-height:0; }
+
+/* (Opcional) en móvil, reduce el gap superior cuando no hay toolbar */
+@media (max-width: 720px){
+  .sl-main.no-toolbar{ gap: var(--gap); } /* un poco menos de separación */
+}
+
+/* === Boot logo perfectamente centrado === */
+.sl-boot{
+  display:flex; align-items:center; justify-content:center;
+}
+.sl-boot__content{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.sl-boot__logo{ margin: 0 0 12px; }
+
+/* === 1) Normaliza botones del header (incl. toggle) === */
+.sl-actions{
+  display: flex;
+  align-items: center;   /* clave: alinea verticalmente todo */
+  gap: 8px;
+}
+
+/* mismo tamaño para TODOS los botones del header */
+.sl-actions .sl-btn{
+  height: 38px;                 /* lock de alto */
+  padding: 8px 12px;            /* consistente con tu diseño */
+  line-height: 22px;            /* evita “salto” del símbolo ☰ */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;       /* por si hay inline-blocks mezclados */
+}
+
+/* si el toggle es el ☰, fuerza mismas métricas */
+#nav-toolbar-toggle.sl-btn{
+  font-size: 18px;              /* mismo que venías usando */
+  line-height: 22px;            /* match exacto al resto */
+  padding: 8px 12px;
+  height: 38px;
+}
+
+/* === 2) Centra el contenido del toolbar === */
+.sl-toolbar{
+  justify-content: center;      /* centra horizontal */
+  align-items: center;          /* por si algún item queda desfasado */
+}
+
+/* cuando se despliega en móvil, sigue centrado */
+@media (max-width: 720px){
+  body.ui-toolbar-open .sl-toolbar{
+    justify-content: center;
+  }
 }

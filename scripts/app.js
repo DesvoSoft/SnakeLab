@@ -25,6 +25,51 @@
   const clearOutputBtn = document.getElementById("clear-output-btn");
   const layoutToggleBtn = document.getElementById("layout-toggle");
 
+  document.getElementById("toolbar-toggle-btn")?.addEventListener("click", () => {
+    document.querySelector(".sl-toolbar")?.classList.toggle("open");
+  });
+  
+  // Navbar toolbar toggle (stable; doesn't hide itself)
+  const navToolbarToggle = document.getElementById("nav-toolbar-toggle");
+  const MAIN = document.querySelector(".sl-main");
+
+  function updateToolbarLayoutState(){
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+
+    // “Hidden” si: (móvil y NO abierto)  ó  (desktop y SÍ colapsado)
+    const hidden =
+      (isMobile  && !document.body.classList.contains("ui-toolbar-open")) ||
+      (!isMobile &&  document.body.classList.contains("ui-toolbar-collapsed"));
+
+    if (hidden) MAIN?.classList.add("no-toolbar");
+    else MAIN?.classList.remove("no-toolbar");
+  }
+
+  navToolbarToggle?.addEventListener("click", () => {
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    let expanded;
+
+    if (isMobile) {
+      // Móvil: toggle "open"
+      expanded = document.body.classList.toggle("ui-toolbar-open");
+      document.body.classList.remove("ui-toolbar-collapsed"); // por si viene de desktop
+    } else {
+      // Desktop: toggle "collapsed"
+      expanded = !document.body.classList.toggle("ui-toolbar-collapsed");
+      document.body.classList.remove("ui-toolbar-open"); // por si viene de móvil
+    }
+
+    navToolbarToggle.setAttribute("aria-expanded", String(expanded));
+    updateToolbarLayoutState();
+  });
+
+  // Recalcula al cargar y al cambiar tamaño/orientación
+  window.addEventListener("resize", updateToolbarLayoutState);
+  window.addEventListener("orientationchange", updateToolbarLayoutState);
+  document.addEventListener("DOMContentLoaded", updateToolbarLayoutState);
+
+
+
   // ===== Helpers (shared) =====
   function showBoot(show, message) {
     if (!BOOT) return Promise.resolve();
