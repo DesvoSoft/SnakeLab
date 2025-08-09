@@ -24,7 +24,7 @@ Powered by [Pyodide](https://pyodide.org/) for Python execution and [Monaco Edit
 
 ---
 
-## 🛠 Built With
+## Built With
 
 * [Pyodide](https://pyodide.org/) — Python compiled to WebAssembly.
 * [Monaco Editor](https://microsoft.github.io/monaco-editor/) — the same editor used in VS Code.
