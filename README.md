@@ -1,6 +1,6 @@
 <h1 align="center">
     <br>
-    <a href="https://naoka.nyeki.dev"><img src="./assets/SnakeLab-logo.png" alt="SnakeLab" width="200"></a>
+    <a href="https://desvosoft.github.io/SnakeLab/"><img src="./assets/SnakeLab-logo.png" alt="SnakeLab" width="200"></a>
     <br>
     SnakeLab
     <br>
