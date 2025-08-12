@@ -1,6 +1,10 @@
-# 🐍 SnakeLab
-
-![SnakeLab Logo](./assets/SnakeLab-logo.png)
+<h1 align="center">
+    <br>
+    <a href="https://naoka.nyeki.dev"><img src="./assets/SnakeLab-logo.png" alt="SnakeLab" width="200"></a>
+    <br>
+    SnakeLab
+    <br>
+</h1>
 
 **SnakeLab** is a lightweight, futuristic-themed **Python playground** that runs entirely in your browser — no server, no installs, no sign-up.  
 Powered by [Pyodide](https://pyodide.org/) for Python execution and [Monaco Editor](https://microsoft.github.io/monaco-editor/) for a rich editing experience.
