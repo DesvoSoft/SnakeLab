@@ -296,7 +296,7 @@ for i in range(3):
 
     // ---- Boot & Pyodide ----
     try {
-      await showBoot(true, "Loading Python runtime…");
+      await showBoot(true, "Loading Python...");
       pyodide = await loadPyodide();
       await showBoot(false);
     } catch (err) {
