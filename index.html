@@ -3,10 +3,7 @@
 <head>
   <link rel="icon" href="./assets/SnakeLab-logo.png">
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SnakeLab</title>
 
   <!-- Styles -->
@@ -44,20 +41,22 @@
 
       <div class="sl-actions">
 
-        <!-- Github repo button -->
-        <a href="https://github.com/DesvoSoft/SnakeLab"
-          target="_blank" 
-          rel="noopener"
-          class="sl-btn sl-btn--github" 
-          title="GitHub Repo">
-          <img src="./assets/github-mark-white.png" alt="" style="width:auto;height: 30px;">
+        <!-- PATCH: GitHub button -->
+        <a href="https://github.com/tuusuario/SnakeLab"
+           target="_blank"
+           rel="noopener"
+           class="sl-btn sl-btn--github"
+           title="Ver en GitHub">
+          <img src="./assets/github-mark-white.png" alt="" style="width:auto;height: 35px;;">
         </a>
+        <!-- END PATCH -->
 
-        <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
-        <button id="download-btn" class="sl-btn sl-btn--blue">Download file</button>
-
-         <!-- Toolbar toggle -->
-         <button id="nav-toolbar-toggle" class="sl-btn sl-btn--blue" aria-expanded="false" title="Toggle toolbar">☰</button>
+        <!-- Toolbar toggle -->
+        <button id="nav-toolbar-toggle"
+                class="sl-btn sl-btn--blue"
+                aria-expanded="false"
+                aria-label="Toggle toolbar"
+                title="Toggle toolbar">☰</button>
       </div>
     </div>
   </header>
@@ -71,7 +70,7 @@
           <input id="filename-input" value="main.py" />
         </div>
 
-        <!-- Theme dropdown (custom) -->
+        <!-- Theme dropdown -->
         <div class="sl-field sl-field--dropdown" data-select="theme">
           <label>Theme:</label>
           <div class="sl-select" id="theme-select" aria-expanded="false">
@@ -87,7 +86,7 @@
           </div>
         </div>
 
-        <!-- Font size dropdown (custom) -->
+        <!-- Font size dropdown -->
         <div class="sl-field sl-field--dropdown" data-select="fontsize">
           <label>Font size:</label>
           <div class="sl-select" id="fontsize-select" aria-expanded="false">
@@ -103,7 +102,20 @@
           </div>
         </div>
 
-        <!-- Layout toggle (only visible on landscape via CSS) -->
+        <!-- PATCH: Append output toggle -->
+        <div class="sl-field">
+          <label for="append-output">Append:</label>
+          <input id="append-output" type="checkbox" />
+        </div>
+
+        <button id="new-btn" class="sl-btn sl-btn--blue">New</button>
+        <button id="download-btn" class="sl-btn sl-btn--blue">Download</button>
+        <input id="open-file-input" type="file" accept=".py,.txt" style="display:none;">
+        <button id="open-btn" class="sl-btn sl-btn--blue" title="Open .py">Open</button>
+        
+        <!-- END PATCH -->
+
+        <!-- Layout toggle -->
         <button id="layout-toggle" class="sl-btn sl-btn--blue" title="Output position: Right/Bottom">
           Output: Right
         </button>
@@ -130,7 +142,7 @@
             <div class="sl-panel__title">Output</div>
             <div class="sl-panel__actions">
               <button id="copy-output-btn" class="sl-btn sl-btn--blue sl-btn--sm">Copy</button>
-              <button id="clear-output-btn" class="sl-btn sl-btn--sm sl-btn--blue">Clear</button>
+              <button id="clear-output-btn" class="sl-btn sl-btn--blue sl-btn--sm">Clear</button>
             </div>
           </div>
           <div class="sl-panel__body">

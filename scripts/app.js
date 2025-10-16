@@ -1,76 +1,74 @@
-/* SnakeLab - Single-file (no formatter) + fullscreen boot screen + custom dropdowns */
-(() => {
+/* SnakeLab - stable build (no optional chaining) */
+(function () {
   // ===== State =====
-  let editor = null;
-  let pyodide = null;
+  var editor = null;
+  var pyodide = null;
 
   // Local storage keys
-  const LS_CODE = "snakelab.code";
-  const LS_NAME = "snakelab.filename";
-  const LS_LAYOUT = "snakelab.layout"; // 'row' or 'col'
+  var LS_CODE = "snakelab.code";
+  var LS_NAME = "snakelab.filename";
+  var LS_LAYOUT = "snakelab.layout"; // 'row' or 'col'
+  var LS_THEME = "snakelab.theme";
+  var LS_FONTSIZE = "snakelab.fontsize";
 
   // ===== DOM =====
-  const BOOT = document.getElementById("boot-screen");
-  const APP = document.querySelector(".sl-app");
+  var BOOT = document.getElementById("boot-screen");
+  var APP = document.querySelector(".sl-app");
 
-  const FILENAME_INPUT = document.getElementById("filename-input");
-  const STATUS_POS = document.getElementById("status-pos");
-  const OUTPUT = document.getElementById("output");
-  const WORKBENCH = document.getElementById("workbench");
+  var FILENAME_INPUT = document.getElementById("filename-input");
+  var STATUS_POS = document.getElementById("status-pos");
+  var OUTPUT = document.getElementById("output");
+  var WORKBENCH = document.getElementById("workbench");
 
-  const runBtn = document.getElementById("run-btn");
-  const newBtn = document.getElementById("new-btn");
-  const downloadBtn = document.getElementById("download-btn");
-  const copyOutputBtn = document.getElementById("copy-output-btn");
-  const clearOutputBtn = document.getElementById("clear-output-btn");
-  const layoutToggleBtn = document.getElementById("layout-toggle");
+  var runBtn = document.getElementById("run-btn");
+  var newBtn = document.getElementById("new-btn");
+  var downloadBtn = document.getElementById("download-btn");
+  var copyOutputBtn = document.getElementById("copy-output-btn");
+  var clearOutputBtn = document.getElementById("clear-output-btn");
+  var layoutToggleBtn = document.getElementById("layout-toggle");
 
-  document.getElementById("toolbar-toggle-btn")?.addEventListener("click", () => {
-    document.querySelector(".sl-toolbar")?.classList.toggle("open");
-  });
-  
-  // Navbar toolbar toggle (stable; doesn't hide itself)
-  const navToolbarToggle = document.getElementById("nav-toolbar-toggle");
-  const MAIN = document.querySelector(".sl-main");
+  // Optional controls (exist only if added in HTML)
+  var appendToggle = document.getElementById("append-output");
+  var openBtn = document.getElementById("open-btn");
+  var openInput = document.getElementById("open-file-input");
 
-  function updateToolbarLayoutState(){
-    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+  // Toolbar toggle (header ☰)
+  var navToolbarToggle = document.getElementById("nav-toolbar-toggle");
+  var MAIN = document.querySelector(".sl-main");
 
-    // “Hidden” si: (móvil y NO abierto)  ó  (desktop y SÍ colapsado)
-    const hidden =
-      (isMobile  && !document.body.classList.contains("ui-toolbar-open")) ||
-      (!isMobile &&  document.body.classList.contains("ui-toolbar-collapsed"));
+  function updateToolbarLayoutState() {
+    var isMobile = window.matchMedia("(max-width: 720px)").matches;
+    var hidden =
+      (isMobile && !document.body.classList.contains("ui-toolbar-open")) ||
+      (!isMobile && document.body.classList.contains("ui-toolbar-collapsed"));
 
-    if (hidden) MAIN?.classList.add("no-toolbar");
-    else MAIN?.classList.remove("no-toolbar");
+    if (MAIN) {
+      if (hidden) MAIN.classList.add("no-toolbar");
+      else MAIN.classList.remove("no-toolbar");
+    }
   }
 
-  navToolbarToggle?.addEventListener("click", () => {
-    const isMobile = window.matchMedia("(max-width: 720px)").matches;
-    let expanded;
+  if (navToolbarToggle) {
+    navToolbarToggle.addEventListener("click", function () {
+      var isMobile = window.matchMedia("(max-width: 720px)").matches;
+      var expanded;
+      if (isMobile) {
+        expanded = document.body.classList.toggle("ui-toolbar-open");
+        document.body.classList.remove("ui-toolbar-collapsed");
+      } else {
+        expanded = !document.body.classList.toggle("ui-toolbar-collapsed");
+        document.body.classList.remove("ui-toolbar-open");
+      }
+      navToolbarToggle.setAttribute("aria-expanded", String(expanded));
+      updateToolbarLayoutState();
+    });
+  }
 
-    if (isMobile) {
-      // Móvil: toggle "open"
-      expanded = document.body.classList.toggle("ui-toolbar-open");
-      document.body.classList.remove("ui-toolbar-collapsed"); // por si viene de desktop
-    } else {
-      // Desktop: toggle "collapsed"
-      expanded = !document.body.classList.toggle("ui-toolbar-collapsed");
-      document.body.classList.remove("ui-toolbar-open"); // por si viene de móvil
-    }
-
-    navToolbarToggle.setAttribute("aria-expanded", String(expanded));
-    updateToolbarLayoutState();
-  });
-
-  // Recalcula al cargar y al cambiar tamaño/orientación
   window.addEventListener("resize", updateToolbarLayoutState);
   window.addEventListener("orientationchange", updateToolbarLayoutState);
   document.addEventListener("DOMContentLoaded", updateToolbarLayoutState);
 
-
-
-  // ===== Helpers (shared) =====
+  // ===== Helpers =====
   function showBoot(show, message) {
     if (!BOOT) return Promise.resolve();
     if (typeof message === "string") setBootMessage(message);
@@ -79,18 +77,19 @@
       if (APP) APP.setAttribute("aria-hidden", "true");
       return Promise.resolve();
     } else {
-      return new Promise((r) => {
-        setTimeout(() => {
-          BOOT.remove(); // fully remove so it can't intercept events
+      return new Promise(function (resolve) {
+        BOOT.setAttribute("aria-hidden", "true");
+        setTimeout(function () {
+          if (BOOT && BOOT.parentNode) BOOT.parentNode.removeChild(BOOT);
           if (APP) APP.removeAttribute("aria-hidden");
-          r();
-        }, 150);
+          resolve();
+        }, 200);
       });
     }
   }
 
   function setBootMessage(text) {
-    const msg = document.querySelector(".sl-boot__msg");
+    var msg = document.querySelector(".sl-boot__msg");
     if (msg) msg.textContent = text;
   }
 
@@ -105,7 +104,7 @@
         { token: "number", foreground: "5e5aff" },
         { token: "string", foreground: "14ffb9" },
         { token: "delimiter", foreground: "a8c3d6" },
-        { token: "type", foreground: "a8f7e6" },
+        { token: "type", foreground: "a8f7e6" }
       ],
       colors: {
         "editor.background": "#10151c",
@@ -116,36 +115,39 @@
         "editor.inactiveSelectionBackground": "#1e7ee622",
         "editorIndentGuide.background": "#1a2b3b",
         "editorIndentGuide.activeBackground": "#2b4761",
-        "editorWhitespace.foreground": "#1a2b3b",
-      },
+        "editorWhitespace.foreground": "#1a2b3b"
+      }
     });
   }
 
   function getInitialCode() {
-    const saved = localStorage.getItem(LS_CODE);
+    var saved = localStorage.getItem(LS_CODE);
     if (saved && saved.trim().length > 0) return saved;
-    return `# SnakeLab starter
-print("Hello, SnakeLab!")
-for i in range(3):
-    print("Tick", i)`;
+    return (
+      '# SnakeLab starter\n' +
+      'print("Hello, SnakeLab!")\n' +
+      'for i in range(3):\n' +
+      '    print("Tick", i)'
+    );
   }
 
   function getInitialName() {
-    const saved = localStorage.getItem(LS_NAME);
+    var saved = localStorage.getItem(LS_NAME);
     return saved && saved.trim().length ? saved : "main.py";
   }
 
   function setFilename(name) {
-    FILENAME_INPUT.value = name;
+    if (FILENAME_INPUT) FILENAME_INPUT.value = name;
     localStorage.setItem(LS_NAME, name);
   }
 
   function getInitialLayout() {
-    const saved = localStorage.getItem(LS_LAYOUT);
+    var saved = localStorage.getItem(LS_LAYOUT);
     return saved === "col" ? "col" : "row";
   }
 
   function applyLayout(mode) {
+    if (!WORKBENCH || !layoutToggleBtn) return;
     if (mode === "col") {
       WORKBENCH.classList.remove("sl-workbench--row");
       WORKBENCH.classList.add("sl-workbench--col");
@@ -158,234 +160,363 @@ for i in range(3):
   }
 
   function uniqueUntitled() {
-    const stamp = Date.now().toString().slice(-5);
-    return `untitled_${stamp}.py`;
+    var stamp = Date.now().toString().slice(-5);
+    return "untitled_" + stamp + ".py";
   }
 
-  function indent(code, level = 1) {
-    const pad = "    ".repeat(level);
-    return code.split("\n").map((l) => pad + l).join("\n");
+  function indent(code, level) {
+    if (level === void 0) level = 1;
+    var pad = new Array(level + 1).join("    ");
+    return code.split("\n").map(function (l) { return pad + l; }).join("\n");
   }
 
-  function downloadText(text, filename = "file.py") {
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+  function downloadText(text, filename) {
+    if (filename === void 0) filename = "file.py";
+    var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }
 
-  function debounce(fn, ms = 250) {
-    let t = null;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  function debounce(fn, ms) {
+    if (ms === void 0) ms = 250;
+    var t = null;
+    return function () {
+      var args = arguments;
+      clearTimeout(t);
+      t = setTimeout(function () { fn.apply(null, args); }, ms);
+    };
   }
 
-  // ===== Custom Dropdown Component =====
-  // Initializes a custom dropdown at `rootEl` and calls `onChange(value, label)` on selection
+  // ===== Custom Dropdowns =====
   function setupDropdown(rootEl, onChange) {
     if (!rootEl) return;
-    const button = rootEl.querySelector(".sl-select__button");
-    const label = rootEl.querySelector(".sl-select__label");
-    const menu = rootEl.querySelector(".sl-select__menu");
-    const options = Array.from(menu.querySelectorAll(".sl-select__option"));
+    var button = rootEl.querySelector(".sl-select__button");
+    var label = rootEl.querySelector(".sl-select__label");
+    var menu = rootEl.querySelector(".sl-select__menu");
+    if (!button || !menu) return;
+    var options = Array.prototype.slice.call(menu.querySelectorAll(".sl-select__option"));
 
-    // Default ARIA
     rootEl.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-expanded", "false");
 
-    // Toggle open/close
-    button.addEventListener("click", () => {
-      const isOpen = rootEl.getAttribute("aria-expanded") === "true";
-      // close others
-      document.querySelectorAll(".sl-select[aria-expanded='true']").forEach(n => {
+    button.addEventListener("click", function () {
+      var isOpen = rootEl.getAttribute("aria-expanded") === "true";
+
+      var openNodes = document.querySelectorAll(".sl-select[aria-expanded='true']");
+      for (var i = 0; i < openNodes.length; i++) {
+        var n = openNodes[i];
         if (n !== rootEl) {
           n.setAttribute("aria-expanded", "false");
-          const b = n.querySelector(".sl-select__button");
+          var b = n.querySelector(".sl-select__button");
           if (b) b.setAttribute("aria-expanded", "false");
         }
-      });
+      }
+
       rootEl.setAttribute("aria-expanded", isOpen ? "false" : "true");
       button.setAttribute("aria-expanded", isOpen ? "false" : "true");
       if (!isOpen) menu.focus();
     });
 
-    // Option click
-    options.forEach(opt => {
-      opt.addEventListener("click", () => {
-        options.forEach(o => o.classList.remove("is-active"));
+    options.forEach(function (opt) {
+      opt.addEventListener("click", function () {
+        options.forEach(function (o) { o.classList.remove("is-active"); });
         opt.classList.add("is-active");
-        const value = opt.getAttribute("data-value");
-        const text = opt.textContent.trim();
+        var value = opt.getAttribute("data-value");
+        var text = (opt.textContent || "").trim();
         if (label) label.textContent = text;
-        rootEl.setAttribute("aria-expanded","false");
-        button.setAttribute("aria-expanded","false");
-        onChange?.(value, text);
+        rootEl.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-expanded", "false");
+        if (onChange) onChange(value, text);
       });
+      opt.tabIndex = 0;
     });
 
-    // Keyboard nav on menu
-    options.forEach(o => o.tabIndex = 0);
-    menu.addEventListener("keydown", (e) => {
-      const current = document.activeElement.closest(".sl-select__option");
-      const idx = options.indexOf(current);
-      if (e.key === "Escape") { rootEl.setAttribute("aria-expanded","false"); button.setAttribute("aria-expanded","false"); button.focus(); }
-      if (e.key === "ArrowDown") { e.preventDefault(); (options[idx+1] || options[0]).focus(); }
-      if (e.key === "ArrowUp") { e.preventDefault(); (options[idx-1] || options[options.length-1]).focus(); }
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); current?.click(); }
+    menu.addEventListener("keydown", function (e) {
+      var active = document.activeElement;
+      var current = null;
+      for (var i = 0; i < options.length; i++) {
+        if (options[i] === active || (active && options[i] === active.closest && active.closest(".sl-select__option"))) {
+          current = options[i];
+          break;
+        }
+      }
+      var idx = current ? options.indexOf(current) : -1;
+      if (e.key === "Escape") {
+        rootEl.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-expanded", "false");
+        button.focus();
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        var next = options[idx + 1] || options[0];
+        next && next.focus();
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        var prev = options[idx - 1] || options[options.length - 1];
+        prev && prev.focus();
+      }
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (current) current.click();
+      }
     });
   }
 
-  // Close dropdowns when clicking outside
-  document.addEventListener("click", (e) => {
-    document.querySelectorAll(".sl-select[aria-expanded='true']").forEach(node => {
+  document.addEventListener("click", function (e) {
+    var openNodes = document.querySelectorAll(".sl-select[aria-expanded='true']");
+    for (var i = 0; i < openNodes.length; i++) {
+      var node = openNodes[i];
       if (!node.contains(e.target)) {
         node.setAttribute("aria-expanded", "false");
-        const b = node.querySelector(".sl-select__button");
+        var b = node.querySelector(".sl-select__button");
         if (b) b.setAttribute("aria-expanded", "false");
       }
-    });
+    }
   });
 
   // ===== Monaco load (AMD) =====
   require.config({
-    paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs" },
+    paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs" }
   });
 
-  require(["vs/editor/editor.main"], async function () {
+  require(["vs/editor/editor.main"], function () {
     defineSnakeTheme();
+
+    // Restore preferences before creating the editor
+    var savedTheme = localStorage.getItem(LS_THEME) || "snake-dark";
+    var savedFont = Number(localStorage.getItem(LS_FONTSIZE) || 14);
 
     editor = monaco.editor.create(document.getElementById("editor"), {
       value: getInitialCode(),
       language: "python",
-      theme: "snake-dark",
+      theme: savedTheme,
       automaticLayout: true,
-      fontSize: 14,
+      fontSize: savedFont,
       minimap: { enabled: false },
-      scrollBeyondLastLine: false,
+      scrollBeyondLastLine: false
     });
 
     // filename init
     setFilename(getInitialName());
 
     // Cursor status
-    editor.onDidChangeCursorPosition((e) => {
-      STATUS_POS.textContent = `Ln ${e.position.lineNumber}, Col ${e.position.column}`;
+    editor.onDidChangeCursorPosition(function (e) {
+      if (STATUS_POS) {
+        STATUS_POS.textContent = "Ln " + e.position.lineNumber + ", Col " + e.position.column;
+      }
     });
 
     // Auto-save
-    editor.onDidChangeModelContent(debounce(() => {
-      localStorage.setItem(LS_CODE, editor.getValue());
-    }, 250));
+    editor.onDidChangeModelContent(
+      debounce(function () {
+        localStorage.setItem(LS_CODE, editor.getValue());
+      }, 250)
+    );
 
     // Init layout
     applyLayout(getInitialLayout());
 
-    // ---- Custom dropdowns (Theme / Font size) ----
-    const themeDD = document.getElementById("theme-select");
-    const fontDD = document.getElementById("fontsize-select");
+    // Dropdowns
+    var themeDD = document.getElementById("theme-select");
+    var fontDD = document.getElementById("fontsize-select");
 
-    setupDropdown(themeDD, (value) => {
-      monaco.editor.setTheme(value);
-    });
-
-    setupDropdown(fontDD, (value) => {
-      const size = Number(value) || 14;
-      editor?.updateOptions({ fontSize: size });
-    });
-
-    // ---- Boot & Pyodide ----
-    try {
-      await showBoot(true, "Loading Python...");
-      pyodide = await loadPyodide();
-      await showBoot(false);
-    } catch (err) {
-      setBootMessage("Failed to load Pyodide. Check your network and reload.");
-      console.error(err);
-      return;
+    var themeLabel = themeDD ? themeDD.querySelector(".sl-select__label") : null;
+    if (themeLabel) {
+      themeLabel.textContent =
+        savedTheme === "vs-dark" ? "VS Dark" :
+        savedTheme === "vs-light" ? "VS Light" : "Snake Dark";
     }
 
-    // Keyboard shortcut: Run (Ctrl/Cmd+Enter)
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      runBtn.click();
+    var fontLabel = fontDD ? fontDD.querySelector(".sl-select__label") : null;
+    if (fontLabel) fontLabel.textContent = String(savedFont);
+
+    setupDropdown(themeDD, function (value) {
+      monaco.editor.setTheme(value);
+      localStorage.setItem(LS_THEME, value);
+    });
+
+    setupDropdown(fontDD, function (value) {
+      var size = Number(value) || 14;
+      if (editor) editor.updateOptions({ fontSize: size });
+      localStorage.setItem(LS_FONTSIZE, String(size));
+    });
+
+    // Boot & Pyodide
+    (function initPyodide() {
+      showBoot(true, "Loading Python...")
+        .then(function () { return loadPyodide(); })
+        .then(function (py) {
+          pyodide = py;
+          return showBoot(false);
+        })
+        .catch(function (err) {
+          setBootMessage("Failed to load Pyodide. Check your network and reload.");
+          console.error(err);
+        });
+    })();
+
+    // ===== Shortcuts =====
+    // Run (Ctrl/Cmd + Enter) -> all
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
+      runAll();
+    });
+    // Run selection (Shift + Enter)
+    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, function () {
+      runSelection();
+    });
+    // Download (Ctrl/Cmd + S)
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function () {
+      if (downloadBtn) downloadBtn.click();
     });
   });
+
+  // ===== Execution helpers =====
+  function getSelectionOrAll() {
+    if (!editor) return "";
+    var sel = editor.getSelection ? editor.getSelection() : null;
+    var selectedText = sel ? editor.getModel().getValueInRange(sel) : "";
+    if (selectedText && selectedText.trim().length) return selectedText;
+    return editor.getValue();
+  }
+
+  async function executePython(code, opts) {
+    if (!opts) opts = {};
+    var append = !!opts.append;
+    if (!pyodide || !editor || !OUTPUT) return;
+  
+    // 1) Indicar estado en el botón Run (sin ensuciar la consola)
+    var prevRunText = runBtn ? runBtn.textContent : "";
+    var prevRunDisabled = runBtn ? runBtn.disabled : false;
+    if (runBtn) {
+      runBtn.textContent = "Running…";
+      runBtn.disabled = true;
+    }
+  
+    // 2) Preparar consola
+    if (!append) {
+      OUTPUT.textContent = "";        // reemplazar
+    } else if (OUTPUT.textContent && !OUTPUT.textContent.endsWith("\n")) {
+      OUTPUT.textContent += "\n";     // separar runs
+    }
+  
+    // 3) Ejecutar Python capturando stdout/err
+    var program = [
+      "import sys",
+      "from io import StringIO",
+      "sys.stdout = sys.stderr = mystdout = StringIO()",
+      "try:",
+      indent(code, 1),
+      "except Exception as e:",
+      '    print(\"❌ Error:\", e)',
+      "mystdout.getvalue()"
+    ].join("\n");
+  
+    try {
+      var result = await pyodide.runPythonAsync(program);
+      var text = result || "(no output)";
+      // 4) Escribir resultado (sin rastro de “Running…”)
+      OUTPUT.textContent += text;
+    } catch (e) {
+      OUTPUT.textContent += "❌ Execution error: " + e;
+    } finally {
+      // 5) Restaurar botón Run
+      if (runBtn) {
+        runBtn.textContent = prevRunText || "Run";
+        runBtn.disabled = prevRunDisabled;
+      }
+      // Auto scroll al final
+      OUTPUT.scrollTop = OUTPUT.scrollHeight;
+    }
+  }
+  
+
+  function runAll() {
+    var code = editor ? editor.getValue() : "";
+    var append = !!(appendToggle && appendToggle.checked);
+    executePython(code, { append: append });
+  }
+
+  function runSelection() {
+    var code = getSelectionOrAll();
+    var append = !!(appendToggle && appendToggle.checked);
+    executePython(code, { append: append });
+  }
 
   // ===== Actions =====
-  runBtn.addEventListener("click", async () => {
-    if (!pyodide || !editor) return;
-    const code = editor.getValue();
-    OUTPUT.textContent = "⏳ Running...\n";
+  if (runBtn) runBtn.addEventListener("click", runAll);
 
-    try {
-      const result = await pyodide.runPythonAsync(`
-import sys
-from io import StringIO
-sys.stdout = sys.stderr = mystdout = StringIO()
-try:
-${indent(code, 1)}
-except Exception as e:
-    print("❌ Error:", e)
-mystdout.getvalue()
-      `);
-      OUTPUT.textContent = result || "(no output)";
-    } catch (e) {
-      OUTPUT.textContent = "❌ Execution error: " + e;
-    }
-  });
+  if (copyOutputBtn) {
+    copyOutputBtn.addEventListener("click", function () {
+      if (!OUTPUT) return;
+      try { navigator.clipboard.writeText(OUTPUT.textContent); } catch (e) {}
+    });
+  }
 
-  copyOutputBtn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(OUTPUT.textContent);
-      // Optional toast
-    } catch {
-      // ignore
-    }
-  });
+  if (clearOutputBtn) {
+    clearOutputBtn.addEventListener("click", function () {
+      if (OUTPUT) OUTPUT.textContent = "";
+    });
+  }
 
-  clearOutputBtn.addEventListener("click", () => {
-    OUTPUT.textContent = "";
-  });
+  if (newBtn) {
+    newBtn.addEventListener("click", function () {
+      var ok = window.confirm("This will clear the current code buffer. Are you sure?");
+      if (!ok) return;
+      var next = uniqueUntitled();
+      setFilename(next);
+      var tpl = "# " + next + "\nprint(\"Hello from SnakeLab!\")";
+      if (editor) editor.setValue(tpl);
+      localStorage.setItem(LS_CODE, tpl);
+    });
+  }
 
-  // New -> confirm before clearing current buffer
-  newBtn.addEventListener("click", () => {
-    const ok = window.confirm("This will clear the current code buffer. Are you sure?");
-    if (!ok) return;
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", function () {
+      var text = editor ? editor.getValue() : "";
+      var name = (FILENAME_INPUT && FILENAME_INPUT.value ? FILENAME_INPUT.value : "main.py").trim();
+      downloadText(text, name.endsWith(".py") ? name : name + ".py");
+    });
+  }
 
-    const next = uniqueUntitled();
-    setFilename(next);
-    const tpl = `# ${next}
-print("Hello from SnakeLab!")`;
-    editor?.setValue(tpl);
-    localStorage.setItem(LS_CODE, tpl);
-  });
+  if (openBtn && openInput) {
+    openBtn.addEventListener("click", function () { openInput.click(); });
+    openInput.addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      file.text().then(function (text) {
+        if (editor) editor.setValue(text);
+        setFilename(file.name && /\.py$/i.test(file.name) ? file.name : file.name + ".py");
+        localStorage.setItem(LS_CODE, text);
+      });
+    });
+  }
 
-  // Download .py (single-file)
-  downloadBtn.addEventListener("click", () => {
-    const text = editor?.getValue() ?? "";
-    const name = (FILENAME_INPUT.value || "main.py").trim();
-    downloadText(text, name.endsWith(".py") ? name : name + ".py");
-  });
+  if (FILENAME_INPUT) {
+    FILENAME_INPUT.addEventListener("change", function () {
+      var newName = (FILENAME_INPUT.value || "main.py").trim();
+      setFilename(newName);
+    });
+  }
 
-  // Filename change (just update LS name)
-  FILENAME_INPUT.addEventListener("change", () => {
-    const newName = (FILENAME_INPUT.value || "main.py").trim();
-    setFilename(newName);
-  });
-
-  // Layout toggle (Right <-> Bottom)
-  layoutToggleBtn.addEventListener("click", () => {
-    const isRow = WORKBENCH.classList.contains("sl-workbench--row");
-    if (isRow) {
-      WORKBENCH.classList.remove("sl-workbench--row");
-      WORKBENCH.classList.add("sl-workbench--col");
-      layoutToggleBtn.textContent = "Output: Bottom";
-      localStorage.setItem(LS_LAYOUT, "col");
-    } else {
-      WORKBENCH.classList.remove("sl-workbench--col");
-      WORKBENCH.classList.add("sl-workbench--row");
-      layoutToggleBtn.textContent = "Output: Right";
-      localStorage.setItem(LS_LAYOUT, "row");
-    }
-  });
+  if (layoutToggleBtn) {
+    layoutToggleBtn.addEventListener("click", function () {
+      if (!WORKBENCH) return;
+      var isRow = WORKBENCH.classList.contains("sl-workbench--row");
+      if (isRow) {
+        WORKBENCH.classList.remove("sl-workbench--row");
+        WORKBENCH.classList.add("sl-workbench--col");
+        layoutToggleBtn.textContent = "Output: Bottom";
+        localStorage.setItem(LS_LAYOUT, "col");
+      } else {
+        WORKBENCH.classList.remove("sl-workbench--col");
+        WORKBENCH.classList.add("sl-workbench--row");
+        layoutToggleBtn.textContent = "Output: Right";
+        localStorage.setItem(LS_LAYOUT, "row");
+      }
+    });
+  }
 })();
