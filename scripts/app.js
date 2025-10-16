@@ -83,7 +83,7 @@
           if (BOOT && BOOT.parentNode) BOOT.parentNode.removeChild(BOOT);
           if (APP) APP.removeAttribute("aria-hidden");
           resolve();
-        }, 200);
+        }, 650);
       });
     }
   }

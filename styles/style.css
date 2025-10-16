@@ -445,3 +445,42 @@ body{
   transform: translateY(1px);
   filter: brightness(1.1);
 }
+
+/* ===== Boot fade: más notorio ===== */
+.sl-boot {
+  opacity: 1;
+  filter: blur(0px);
+  transition:
+    opacity .6s ease,
+    filter .6s ease; /* sutil desenfoque al desaparecer */
+}
+
+/* el contenido también hace un mini “slide up” y fade */
+.sl-boot__content {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity .6s ease,
+    transform .6s cubic-bezier(.22,.61,.36,1); /* ease-out suave */
+}
+
+.sl-boot[aria-hidden="true"] {
+  opacity: 0;
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.sl-boot[aria-hidden="true"] .sl-boot__content {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Respeta usuarios con reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .sl-boot,
+  .sl-boot__content {
+    transition: opacity .2s linear !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
